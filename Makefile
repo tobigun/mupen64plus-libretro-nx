@@ -124,7 +124,11 @@ ifneq (,$(findstring unix,$(platform)))
 else ifneq (,$(findstring rpi,$(platform)))
    TARGET := $(TARGET_NAME)_libretro.so
    LDFLAGS += -shared -Wl,--version-script=$(LIBRETRO_DIR)/link.T -Wl,--no-undefined -ldl
-   GLES = 1
+   ifneq (,$(findstring rpi4,$(platform)))
+      GLES3 = 1
+   else
+      GLES = 1
+   endif
    ifneq (,$(findstring mesa,$(platform)))
       GL_LIB := -lGLESv2
    else
@@ -141,6 +145,11 @@ else ifneq (,$(findstring rpi,$(platform)))
    else ifneq (,$(findstring rpi3,$(platform)))
       CPUFLAGS += -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard
       HAVE_NEON = 1
+   else ifneq (,$(findstring rpi4,$(platform)))
+      CPUFLAGS += -march=armv8-a+crc -mtune=cortex-a72 -mfpu=neon-fp-armv8 -mfloat-abi=hard
+      HAVE_NEON = 1
+      # @namanix: is this really needed?
+      INCFLAGS += -I/opt/vc/include -I/opt/vc/include/interface/vcos -I/opt/vc/include/interface/vcos/pthreads
    endif
    COREFLAGS += -DUNDEF_GL_GLEXT_PROTOTYPES -DOS_LINUX
    ASFLAGS = -f elf -d ELF_TYPE
